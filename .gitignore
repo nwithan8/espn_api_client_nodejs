@@ -1,0 +1,42 @@
+
+# Logs and databases #
+######################
+*.log
+logs
+*.sql
+*.sqlite
+*.sqlite-journal
+*.sqlite3
+*.sqlite3*
+testing.js
+db.json
+config.js
+attachments
+_WIP
+_todo
+_old
+rclone.conf
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.bak
+*.swp
+
+# Programming #
+######################
+node_modules
+__pycache__
+env
+.env
+venv
+*.pyc
+*.idea
+.vscode
+yarn.lock
