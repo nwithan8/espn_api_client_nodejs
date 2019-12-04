@@ -1,11 +1,32 @@
 const base = 'http://site.api.espn.com/apis/site/v2/sports/'
 
 const get_sport = (league) => {
-  // if league = college-football or nfl, sport = football
-  // if league = mens-college-basketball, womens-college-basketball, nba or wnba, sport = basketball
-  // if league = college-baseball or mlb, sport = baseball
-  // if league = nhl, sport = hockey
-  // else: ASSUME SOCCER, sport = soccer
+  let sport
+
+  switch (league) {
+    case 'college-football':
+    case 'nfl':
+      sport = 'football'
+      break
+    case 'mens-college-basketball':
+    case 'womens-college-backetball':
+    case 'nba':
+    case 'wnba':
+      sport = 'basketball'
+      break
+    case 'college-basketball':
+    case 'mlb':
+      sport = 'baseball'
+      break
+    case 'nhl':
+      sport = 'hockey'
+      break
+    default:
+      // * ASSUME SOCCER, sport = soccer
+      sport = 'soccer'
+  }
+
+  return sport
 }
 
 const get_conference_id = (conference) => {
