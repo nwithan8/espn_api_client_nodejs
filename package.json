@@ -1,15 +1,13 @@
 {
-  "name": "espn_apiclient",
+  "name": "espn-api",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/nwithan8/espn_apiclient",
   "author": "na",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.7.1",
-    "sequelize": "^5.21.2",
-    "unirest": "^0.6.0",
-    "urljoin": "^0.1.5"
+    "moment": "^2.24.0",
+    "unirest": "^0.6.0"
   },
   "devDependencies": {
     "eslint": "^6.6.0",
@@ -22,6 +20,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.16.0",
     "eslint-plugin-standard": "^4.0.1",
+    "madge": "^3.6.0",
     "prettier": "^1.19.1"
   }
 }
