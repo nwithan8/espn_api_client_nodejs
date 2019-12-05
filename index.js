@@ -3,13 +3,14 @@ const { get } = require('unirest')
 
 module.exports = class ESPN {
   constructor(league) {
-    this.baseUrl = 'http://site.api.espn.com/apis/site/v2/sports'
     this.league = league
-    this.sport = this.getSport(league)
+    this.sport = this.getSport()
+    this.baseUrl = `http://site.api.espn.com/apis/site/v2/sports/${this.sport}/${league}`
+    this.team = null
   }
 
-  getSport(league) {
-    switch (league) {
+  getSport() {
+    switch (this.league) {
       case 'college-football':
       case 'nfl':
         return 'football'
@@ -33,27 +34,45 @@ module.exports = class ESPN {
     }
   }
 
-  getConferenceID(conference) {
-    //get conference id from a conference name/abbreviation
+  async getConferenceID(conference) {
+    // get conference id from a conference name/abbreviation
   }
 
-  getNews(sport, league) {}
-
-  getScoreboard(sport, league) {}
-
-  getTeam(sport, league, team) {
-    //'team' can be teamID or abbreviation
+  async getNews() {
+    const request = await get(`${this.baseUrl}/news`)
+    const news = request.body
+    // ? do somehing else with news ??
+    return news
   }
 
-  getTeamSchedule(sport, league, teamID) {}
+  async getScoreboard() {
+    const request = await get(`${this.baseUrl}/scoreboard`)
+    const scores = request.body
+    // ? do somehing else with scoreboard ??
+    return scores
+  }
 
-  getGame(sport, league, gameID) {}
+  async getTeam(team) {
+    // 'team' can be teamID or abbreviation
+  }
 
-  getGameProbability(sport, league, gameID) {}
+  async getTeamSchedule(teamID) {}
 
-  getGameOdds(sport, league, gameID) {}
+  async getGame(gameID) {}
 
-  getRankings(sport, league) {
-    //'leaderboard' for things like golf, 'rankings' for team sports
+  async getGameProbability(gameID) {}
+
+  async getGameOdds(gameID) {}
+
+  async getRankings(team) {
+    switch (this.league) {
+      default:
+      // ? make some logic here to filter which rank/leaderboard to grab
+    }
+    // 'leaderboard' for things like golf, 'rankings' for team sports
+    const request = await get(`${this.baseUrl}/rankings`)
+    const rankings = request.body
+    // ? do somehing else with rankings ??
+    return rankings
   }
 }
