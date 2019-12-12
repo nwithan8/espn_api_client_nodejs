@@ -1,8 +1,11 @@
 /* eslint-disable max-classes-per-file */
 const { get } = require('unirest')
-const TeamClass = require('./Team')
-const GameClass = require('./Game')
+const Team = require('./Team')
+const Game = require('./Game')
 
+/**
+ * Class and methods for ESPN League data
+ */
 module.exports = class League {
   constructor(leagueName) {
     this.league = leagueName
@@ -13,6 +16,11 @@ module.exports = class League {
     this.currentGames = []
   }
 
+  /**
+   * Sets the sport based on the specified league
+   * @param {league} league Leauge of the sport being requested
+   * @return {string} The sport
+   */
   getSport(league) {
     let sport
 
@@ -49,33 +57,55 @@ module.exports = class League {
     return sport
   }
 
+  /**
+   * Fetches the team from the ID or abbreviation
+   * @param {string} ID Team ID or abbreviation
+   * @return {object} Team object
+   */
   async Team(ID) {
     const request = await get(`${this.baseUrl}/teams/${ID.toLowerCase()}`)
-    console.log(request.body.code)
     if (!request.body.code) {
+      let team
       if (typeof ID === 'number') {
-        return new TeamClass({
+        team = new Team({
           teamID: ID,
+          teamNickname: null,
           league: this.league,
           sport: this.sport,
           baseUrl: this.baseUrl
         })
-      }
-      return new TeamClass({
-        teamNickname: ID,
-        league: this.league,
-        sport: this.sport,
-        baseUrl: this.baseUrl
+      } else {
+        team = new Team({
+          teamID: await this.getTeamIDFromName(ID.toLowerCase()),
+          teamNickname: ID,
+          league: this.league,
+          sport: this.sport,
+          baseUrl: this.baseUrl
       })
+      }
+      return team
     }
   }
 
+  async getTeamIDFromName(name) {
+    const request = await get(`${this.baseUrl}/teams/${name}`)
+    return request.body.team.id
+  }
+
+  /**
+   * Fetches all teams in the specified league
+   * @return {object} Array of all teams in league
+   */
   async getTeams() {
     const response = await get(`${this.baseUrl}/teams`)
     const teamList = response.body.sports[0].leagues[0].teams
     return teamList
   }
 
+  /**
+   * Fetches the rankings of all teams in league
+   * @return {object} JSON containing all rankings
+   */
   async getRankings() {
     switch (this.league) {
       default:
@@ -88,20 +118,30 @@ module.exports = class League {
     return rankings
   }
 
+  /**
+   * Fetches news items for the specified league
+   * @return {object} JSON of league news
+   */
   async getNews() {
     const request = await get(`${this.baseUrl}/news`)
-    const news = request.body
-    // ? do somehing else with news ??
-    return news
+    return request.body
   }
 
+  /**
+   * Fetches all current games in specified league
+   * @return {object} Array of current games in league
+   */
   async getCurrentGames() {
     const request = await get(`${this.baseUrl}/scoreboard`)
 
     for (const game of request.body.events) {
-      this.currentGames.push(
-        new GameClass(game.id, { league: this.league, sport: this.sport, baseUrl: this.baseUrl })
-      )
+      const newGame = new Game(game.id, {
+        league: this.league,
+        sport: this.sport,
+        baseUrl: this.baseUrl
+      })
+      //await newGame.getTeams()
+      this.currentGames.push(newGame)
     }
     return this.currentGames
   }

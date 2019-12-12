@@ -1,6 +1,9 @@
 const { get } = require('unirest')
-const TeamClass = require('./Team')
+const Team = require('./Team')
 
+/**
+ * Class and methods for ESPN game data
+ */
 module.exports = class Game {
   constructor(gameID, data) {
     this.gameID = gameID
@@ -10,26 +13,67 @@ module.exports = class Game {
     this.awayTeam = null
     this.homeTeam = null
     this.score = [] // [away, home]
-    ;(async () => {
+    /*;(async () => {
       await this.getTeams(gameID)
-    })()
+    })()*/
+    // can't be run at construction, so games don't have home & away teams filled out until getTeams() called manually
+    this.winProbabilityPercentage = null
+    this.winProbabilityTeam = null
+    this.spread = null
+    this.overUnder = null
   }
 
+  /**
+   * Get game data for game ID in JSON format
+   * @return {object} JSON of game info
+   */
+  async getJson() {
+    try {
+      const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
+      return request.body
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  /**
+   * Get game ID
+   * @returns {number} Game ID
+   */
+  async getGameID() {
+    return this.gameID
+  }
+
+  /**
+   * Gets the two teams playing the game
+   * @returns {object} homeTeam, awayTeam of game
+   * 
+   * ERROR: TypeError: Team is not a constructor (line 58 & 66)
+   */
   async getTeams() {
-    const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
-    const { teams } = request.body.boxscore
-    this.awayTeam = new TeamClass({
-      teamID: teams[0].team.id,
-      league: this.league,
-      sport: this.sport,
-      baseUrl: this.baseUrl
-    })
-    this.homeTeam = new TeamClass({
-      teamID: teams[1].team.id,
-      league: this.league,
-      sport: this.sport,
-      baseUrl: this.baseUrl
-    })
+    try {
+      const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
+      const teamObjs = request.body.boxscore.teams
+      console.log(teamObjs[0].team.id)
+      this.awayTeam = new Team({
+        teamID: teamObjs[0].team.id,
+        teamNickname: null,
+        league: this.league,
+        sport: this.sport,
+        baseUrl: this.baseUrl
+      })
+      console.log(teamObjs[1].team.id)
+      this.homeTeam = new Team({
+        teamID: teamObjs[1].team.id,
+        teamNickname: null,
+        league: this.league,
+        sport: this.sport,
+        baseUrl: this.baseUrl
+      })
+      return { homeTeam: this.homeTeam, awayTeam: this.awayTeam }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async getScore() {
@@ -42,7 +86,49 @@ module.exports = class Game {
     return this.score
   }
 
-  async getGameProbability() {}
+  /**
+   *  Gets the win probability of the game
+   * @return {object} winProbabilty, Team Object of predicted winning team
+   */
+  async getGameProbability() {
+    try {
+      const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
+      if (request.body.winprobability) {
+        const lastProbability = request.body.winprobability.pop()
+        if (lastProbability.homeWinPercentage < 0.5) {
+          this.winProbabilityPercentage = 1 - lastProbability.homeWinPercentage
+          this.winProbabilityTeam = this.awayTeam
+        } else {
+          this.winProbabilityPercentage = lastProbability.homeWinPercentage
+          this.winProbabilityTeam = this.homeTeam
+        }
+      }
+      return {
+        winProbabilityPercentage: this.winProbabilityPercentage,
+        winProbabilityTeam: this.winProbabilityTeam
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
-  async getGameOdds() {}
+  /**
+   * @return {}
+   */
+  async getGameOdds() {
+    try {
+      const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
+      if (request.body.pickcenter) {
+        const pickCenter = request.body.pickcenter[0]
+        this.spread = pickCenter.details
+        this.overUnder = pickCenter.overUnder
+      }
+      return {
+        spread: this.spread,
+        overUnder: this.overUnder
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 }

@@ -1,8 +1,12 @@
 const { get } = require('unirest')
+const Game = require('./Game')
 
+/**
+ * Class and methods for ESPN team data
+ */
 module.exports = class Team {
   constructor(data) {
-    this.teamID = data.teamID || null
+    this.teamID = data.teamID
     this.teamNickname = data.teamNickname || null
     this.league = data.league
     this.sport = data.sport
@@ -12,52 +16,89 @@ module.exports = class Team {
     this.subConferenceID = null
     this.statistics = {}
     this.record = {}
-
-    if (!this.teamID) {
-      ;(async () => {
-        this.teamID = await this.getTeamID()
-      })()
-    }
+    this.teamLogoURL = null
   }
 
+  /**
+   * Convert team abbreviation into team ID
+   * @return {number} Team ID
+   */
+  async getTeamIDFromName() {
+    const teamInfo = await this.getJson(this.teamNickname.toLowerCase())
+    this.teamID = teamInfo.team.id
+    return this.teamID
+  }
+
+  /**
+   * Gets team ID
+   * @return {number} Team ID
+   */
   async getTeamID() {
-    // convert team abbreviation into teamID
-    const teamInfo = await this.getTeamInfo(this.teamNickname)
-    return teamInfo.team.id
+    return this.teamID
   }
 
-  async getTeamInfo(ID) {
-    // 'ID' can be teamID or abbreviation
+  /**
+   * Gets the information on a team in JSON format
+   * @param {ID} Team ID or abbreviation
+   * @return {object} JSON of team info
+   */
+  async getJson(ID) {
     const request = await get(`${this.baseUrl}/teams/${ID}`)
-    const teamInfo = request.body
-    return teamInfo
+    return request.body
   }
 
+  /**
+   * Gets the schedule of the specified team
+   * @return {JSON} Specified team schedule
+   */
   async getTeamSchedule() {
     const request = await get(`${this.baseUrl}/teams/${this.teamID}/schedule`)
-    this.schedule = request.body.events
+    const schedule = []
+    for (const game of request.body.events) {
+      const newGame = new Game(game.id, {
+        league: this.league,
+        sport: this.sport,
+        baseUrl: this.baseUrl
+      })
+      //await newGame.getTeams()
+      schedule.push(newGame)
+    }
+    /* this.schedule = request.body.events
     return this.schedule
+    */
+    return schedule
   }
 
+  /**
+   * Gets the specified teams record information
+   * @return {object} JSON of team record infomation
+   */
   async getTeamRecord() {
-    const request = await this.getTeamInfo(this.teamID)
-    this.record = request.record
+    const request = await this.getJson(this.teamID)
+    this.record = request.body.record
     return this.record
   }
 
+  /**
+   * Gets the specified teams conference
+   * @return {number} ID of team's conference
+   */
   async getTeamConference() {
-    const request = await this.getTeamInfo(this.teamID)
+    const request = await this.getJson(this.teamID)
     if (request.groups) {
-      this.subConferenceID = request.groups.id
-      this.conferenceID = request.groups.parent.id
+      this.subConferenceID = request.body.groups.id
+      this.conferenceID = request.body.groups.parent.id
     }
     return this.conferenceID
   }
-}
 
-// vars:
-// teamId
-// abbreviations
-// schedule
-// record
-// other info from the API hit
+  /**
+   * Gets the specified teams logo URL
+   * @return {string} Url of team logo
+   */
+  async getTeamLogoURL() {
+    const request = await this.getJson(this.teamID)
+    this.teamLogoURL = request.body.team.logos[0].href
+    return this.teamLogoURL
+  }
+}
