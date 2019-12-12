@@ -52,8 +52,8 @@ module.exports = class Game {
    */
   async getTeams() {
     try {
-      const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
-      const teamObjs = request.body.boxscore.teams
+      const json = await this.getJson()
+      const teamObjs = json.boxscore.teams
       console.log(teamObjs[0].team.id)
       this.awayTeam = new Team({
         teamID: teamObjs[0].team.id,
@@ -77,9 +77,9 @@ module.exports = class Game {
   }
 
   async getScore() {
-    const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
-    if (request.body.scoringPlays) {
-      const lastScore = request.body.scoringPlays.pop()
+    const json = await this.getJson()
+    if (json.scoringPlays) {
+      const lastScore = json.scoringPlays.pop()
       this.score.push(lastScore.awayScore)
       this.score.push(lastScore.homeScore)
     }
@@ -92,9 +92,9 @@ module.exports = class Game {
    */
   async getGameProbability() {
     try {
-      const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
-      if (request.body.winprobability) {
-        const lastProbability = request.body.winprobability.pop()
+      const json = await this.getJson()
+      if (json.winprobability) {
+        const lastProbability = json.winprobability.pop()
         if (lastProbability.homeWinPercentage < 0.5) {
           this.winProbabilityPercentage = 1 - lastProbability.homeWinPercentage
           this.winProbabilityTeam = this.awayTeam
@@ -117,9 +117,9 @@ module.exports = class Game {
    */
   async getGameOdds() {
     try {
-      const request = await get(`${this.baseUrl}/summary?event=${this.gameID}`)
-      if (request.body.pickcenter) {
-        const pickCenter = request.body.pickcenter[0]
+      const json = await this.getJson()
+      if (json.pickcenter) {
+        const pickCenter = json.pickcenter[0]
         this.spread = pickCenter.details
         this.overUnder = pickCenter.overUnder
       }

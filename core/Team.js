@@ -74,8 +74,8 @@ module.exports = class Team {
    * @return {object} JSON of team record infomation
    */
   async getTeamRecord() {
-    const request = await this.getJson(this.teamID)
-    this.record = request.record
+    const json = await this.getJson(this.teamID)
+    this.record = json.record
     return this.record
   }
 
@@ -84,10 +84,10 @@ module.exports = class Team {
    * @return {number} ID of team's conference
    */
   async getTeamConference() {
-    const request = await this.getJson(this.teamID)
-    if (request.groups) {
-      this.subConferenceID = request.groups.id
-      this.conferenceID = request.groups.parent.id
+    const json = await this.getJson(this.teamID)
+    if (json.groups) {
+      this.subConferenceID = json.groups.id
+      this.conferenceID = json.groups.parent.id
     }
     return this.conferenceID
   }
@@ -97,8 +97,8 @@ module.exports = class Team {
    * @return {string} Url of team logo
    */
   async getTeamLogoURL() {
-    const request = await this.getJson(this.teamID)
-    this.teamLogoURL = request.team.logos[0].href
+    const json = await this.getJson(this.teamID)
+    this.teamLogoURL = json.team.logos[0].href
     return this.teamLogoURL
   }
 }
