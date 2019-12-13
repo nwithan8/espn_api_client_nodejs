@@ -6,6 +6,10 @@ The ``League`` class
 .. js:autoclass:: espn_api_client.core.League.League
     :members: league, sport, teams, conferences, baseUrl, currentGames
 
+.. js:autofunction:: getRankings()
+
+.. js:autofunction:: getNews()
+
 The ``Team`` class
 ********************
 .. js:autoclass:: espn_api_client.core.Team.Team
