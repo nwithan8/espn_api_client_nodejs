@@ -3,19 +3,19 @@ Documentation
 
 The ``League`` class
 ******************
-.. js:autoclass:: espn_api_client.core.League.League
+.. js:autoclass:: espn_api_client.League
     :members: league, sport, teams, conferences, baseUrl, currentGames
 
-.. js:autofunction:: getRankings()
+.. js:autofunction:: espn_api.client.Rankings()
 
 .. js:autofunction:: getNews()
 
 The ``Team`` class
 ********************
-.. js:autoclass:: espn_api_client.core.Team.Team
+.. js:autoclass:: espn_api_client.Team
     :members: teamID, teamNickname, league, sport, baseUrl, schedule, conferenceID, subConferenceID, statistics, record, teamLogoURL
 
 The ``Game`` class
 ********************
-.. js:autoclass:: espn_api_client.core.Game.Game
+.. js:autoclass:: espn_api_client.Game
     :members: gameID, league, sport, baseUrl, awayTeam, homeTeam, score, winProbabilityPercentage, winProbabilityTeam, spread, overUnder
