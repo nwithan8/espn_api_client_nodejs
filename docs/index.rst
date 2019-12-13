@@ -10,7 +10,6 @@ Contents:
    :caption: Contents:
 
    introduction
-   authentication
    modules
 
 
