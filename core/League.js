@@ -2,6 +2,7 @@
 const { get } = require('unirest')
 const Team = require('./Team')
 const Game = require('./Game')
+const Player = require('./Player')
 
 /**
  * Class and methods for ESPN League data
@@ -85,6 +86,33 @@ module.exports = class League {
       }
       return team
     }
+  }
+  
+  /**
+   * Fetches the game from the ID 
+   * @param {string} ID Game ID
+   * @return {object} Game object
+   */
+  async Game(ID) {
+    const game = new Game(ID, {
+      league: this.league,
+      sport: this.sport,
+      baseUrl: this.baseUrl
+    })
+    return game
+  }
+
+  /**
+   * Fetches the player from the ID 
+   * @param {string} ID Player ID
+   * @return {object} Player object
+   */
+  async Player(ID) {
+    const player = new Player(ID, {
+      league: this.league,
+      sport: this.sport
+    })
+    return player
   }
 
   async getTeamIDFromName(name) {

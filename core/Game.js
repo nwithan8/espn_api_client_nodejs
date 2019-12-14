@@ -54,7 +54,6 @@ module.exports = class Game {
     try {
       const json = await this.getJson()
       const teamObjs = json.boxscore.teams
-      console.log(teamObjs[0].team.id)
       this.awayTeam = new Team({
         teamID: teamObjs[0].team.id,
         teamNickname: null,
