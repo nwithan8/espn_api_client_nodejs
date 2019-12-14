@@ -82,14 +82,14 @@ module.exports = class League {
           league: this.league,
           sport: this.sport,
           baseUrl: this.baseUrl
-      })
+        })
       }
       return team
     }
   }
-  
+
   /**
-   * Fetches the game from the ID 
+   * Fetches the game from the ID
    * @param {string} ID Game ID
    * @return {object} Game object
    */
@@ -103,7 +103,7 @@ module.exports = class League {
   }
 
   /**
-   * Fetches the player from the ID 
+   * Fetches the player from the ID
    * @param {string} ID Player ID
    * @return {object} Player object
    */
@@ -168,7 +168,7 @@ module.exports = class League {
         sport: this.sport,
         baseUrl: this.baseUrl
       })
-      //await newGame.getTeams()
+      // await newGame.getTeams()
       this.currentGames.push(newGame)
     }
     return this.currentGames

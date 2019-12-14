@@ -13,9 +13,9 @@ module.exports = class Game {
     this.awayTeam = null
     this.homeTeam = null
     this.score = [] // [away, home]
-    /*;(async () => {
+    /* ;(async () => {
       await this.getTeams(gameID)
-    })()*/
+    })() */
     // can't be run at construction, so games don't have home & away teams filled out until getTeams() called manually
     this.winProbabilityPercentage = null
     this.winProbabilityTeam = null
@@ -47,7 +47,7 @@ module.exports = class Game {
   /**
    * Gets the two teams playing the game
    * @returns {object} homeTeam, awayTeam of game
-   * 
+   *
    * ERROR: TypeError: Team is not a constructor (line 58 & 66)
    */
   async getTeams() {
@@ -76,13 +76,19 @@ module.exports = class Game {
   }
 
   async getScore() {
-    const json = await this.getJson()
-    if (json.scoringPlays) {
-      const lastScore = json.scoringPlays.pop()
-      this.score.push(lastScore.awayScore)
-      this.score.push(lastScore.homeScore)
+    try {
+      if (!this.score) {
+        const json = await this.getJson()
+        if (json.scoringPlays) {
+          const lastScore = json.scoringPlays.pop()
+          this.score.push(lastScore.awayScore)
+          this.score.push(lastScore.homeScore)
+        }
+      }
+      return this.score
+    } catch (e) {
+      console.log(e)
     }
-    return this.score
   }
 
   /**
@@ -91,15 +97,17 @@ module.exports = class Game {
    */
   async getGameProbability() {
     try {
-      const json = await this.getJson()
-      if (json.winprobability) {
-        const lastProbability = json.winprobability.pop()
-        if (lastProbability.homeWinPercentage < 0.5) {
-          this.winProbabilityPercentage = 1 - lastProbability.homeWinPercentage
-          this.winProbabilityTeam = this.awayTeam
-        } else {
-          this.winProbabilityPercentage = lastProbability.homeWinPercentage
-          this.winProbabilityTeam = this.homeTeam
+      if (!this.winProbabilityPercentage || !this.winProbabilityTeam) {
+        const json = await this.getJson()
+        if (json.winprobability) {
+          const lastProbability = json.winprobability.pop()
+          if (lastProbability.homeWinPercentage < 0.5) {
+            this.winProbabilityPercentage = 1 - lastProbability.homeWinPercentage
+            this.winProbabilityTeam = this.awayTeam
+          } else {
+            this.winProbabilityPercentage = lastProbability.homeWinPercentage
+            this.winProbabilityTeam = this.homeTeam
+          }
         }
       }
       return {
@@ -116,11 +124,13 @@ module.exports = class Game {
    */
   async getGameOdds() {
     try {
-      const json = await this.getJson()
-      if (json.pickcenter) {
-        const pickCenter = json.pickcenter[0]
-        this.spread = pickCenter.details
-        this.overUnder = pickCenter.overUnder
+      if (!this.spread || !this.overUnder) {
+        const json = await this.getJson()
+        if (json.pickcenter) {
+          const pickCenter = json.pickcenter[0]
+          this.spread = pickCenter.details
+          this.overUnder = pickCenter.overUnder
+        }
       }
       return {
         spread: this.spread,

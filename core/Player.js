@@ -30,8 +30,7 @@ module.exports = class Player {
     }
   }
 
-
-    /**
+  /**
    * Update basic player information following construction
    */
   async updatePlayerInfo() {
