@@ -14,7 +14,7 @@ module.exports = class Player {
     this.team = null
     this.position = null
     this.jerseyNumber = null
-    this.baseUrl = `https://site.web.api.espn.com/apis/common/v3/sports/${this.sport}/${this.league}/athletes/`
+    this.baseUrl = `https://site.web.api.espn.com/apis/common/v3/sports/${this.sport}/${this.league}/athletes`
   }
 
   /**
