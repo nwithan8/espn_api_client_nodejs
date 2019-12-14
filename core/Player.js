@@ -36,14 +36,10 @@ module.exports = class Player {
   async updatePlayerInfo() {
     try {
       const json = await this.getJson()
-      this.firstName = json.athlete.firstName
-      this.lastName = json.athlete.lastName
-      if (json.athlete.jersey) {
-        this.jerseyNumber = json.athlete.jersey
-      }
-      if (json.athlete.position) {
-        this.position = json.athlete.position.abbreviation
-      }
+      this.firstName = json.athlete.firstName || null
+      this.lastName = json.athlete.lastName || null
+      this.jerseyNumber = json.athlete.jersey || null
+      this.position = json.athlete.position.abbreviation || null
       if (json.athlete.team.id) {
         this.team = new Team({
           teamID: json.athlete.team.id,
@@ -67,13 +63,22 @@ module.exports = class Player {
   }
 
   /**
-   * Get data of player statistics in JSON format, if available
+   * Get summary data of player statistics in JSON format, if available
    * @return {object} JSON of player stats
    */
-  async getPlayerStats() {
+  async getPlayerStatsSummary() {
     const json = await this.getJson()
     if (json.athlete.statsSummary) {
       return json.athlete.statsSummary
     }
+  }
+
+  /**
+   * Get full data of player statistics in JSON format, if available
+   * @return {object} JSON of full player stats
+   */
+  async getPlayerFullStats() {
+    const request = await get(`${this.baseUrl}/${this.playerID}/splits`)
+    return request.body
   }
 }

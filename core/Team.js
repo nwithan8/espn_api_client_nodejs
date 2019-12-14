@@ -1,67 +1,85 @@
 const { get } = require('unirest')
 const Game = require('./Game')
 const Player = require('./Player')
+const Conference = require('./Conference')
 
 /**
  * Class and methods for ESPN team data
  */
 module.exports = class Team {
   constructor(data) {
-    this.teamID = data.teamID
-    this.teamNickname = data.teamNickname || null
+    this.teamID = data.teamID // ex. 2
     this.league = data.league
     this.sport = data.sport
     this.baseUrl = data.baseUrl
-    this.schedule = {}
-    this.conferenceID = null
-    this.subConferenceID = null
-    this.statistics = {}
-    this.record = {}
+    this.nickname = data.teamNickname || null // ex. Auburn
+    this.abbreviation = null // ex. AUB
+    this.location = null // ex. Auburn
+    this.mascot = null // ex. Tigers
+    this.displayName = null // ex. Auburn Tigers
+    this.color = null
     this.teamLogoURL = null
-    this.roster = null
+    this.conference = null // Conference object
+    this.links = null // {}
+    this.schedule = null // [Game object, Game object, ...]
+    this.statistics = null // {}
+    this.record = null // {wins, losses, ties}
+    this.roster = null // [{offense, defense, ...}]
   }
 
   /**
-   * Convert team abbreviation into team ID
+   * Convert team keyword into team ID, used internally when making object
+   * @param {string} keyword ID or abbreviation
    * @return {number} Team ID
    */
-  async getTeamIDFromName() {
-    const teamInfo = await this.getJson(this.teamNickname.toLowerCase())
-    this.teamID = teamInfo.team.id
+  async getTeamIDFromName(keyword) {
+    const request = await get(`${this.baseUrl}/teams/${keyword.toLowerCase()}`)
+    this.teamID = request.body.teamInfo.team.id
     return this.teamID
   }
 
   /**
-   * Gets team ID
-   * @return {number} Team ID
-   */
-  async getTeamID() {
-    return this.teamID
-  }
-
-  /**
-   * Gets the information on a team in JSON format, used internally
-   * @param {ID} Team ID or abbreviation
+   * Gets the information on a team in JSON format
    * @return {object} JSON of team info
    */
-  async getJson(ID) {
-    const request = await get(`${this.baseUrl}/teams/${ID}`)
-    return request.body
-  }
-
-  /**
-   * Gets the information on a team in JSON format, used externally
-   * @param {ID} Team ID or abbreviation
-   * @return {object} JSON of team info
-   */
+  // eslint-disable-next-line no-dupe-class-members
   async getJson() {
     const request = await get(`${this.baseUrl}/teams/${this.teamID}`)
     return request.body
   }
 
   /**
+   * Complete Team object, used internally
+   */
+  async makeTeam() {
+    try {
+      const json = await this.getJson()
+      this.nickname = json.team.nickname || null
+      this.abbreviation = json.team.abbreviation || null
+      this.location = json.team.location || null
+      this.mascot = json.team.name || null
+      this.displayName = json.team.displayName || null
+      this.color = json.team.color || null
+      this.teamLogoURL = json.team.logos[0].href || null
+      this.record =
+        {
+          wins: json.team.record.items[0].stats[1].value,
+          losses: json.team.record.items[0].stats[2].value,
+          ties: json.team.record.items[0].stats[5].value
+        } || null
+      this.statistics = json.team.record.items || null
+      this.links = json.team.links || null
+      await this.getTeamSchedule()
+      await this.getTeamConference()
+      await this.getTeamRoster()
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  /**
    * Gets the schedule of the specified team
-   * @return {JSON} Specified team schedule
+   * @return {object} Specified team schedule
    */
   async getTeamSchedule() {
     try {
@@ -77,9 +95,7 @@ module.exports = class Team {
           // await newGame.getTeams()
           schedule.push(newGame)
         }
-        /* this.schedule = request.body.events
-        return this.schedule
-        */
+        this.schedule = schedule
       }
       return this.schedule
     } catch (e) {
@@ -88,52 +104,16 @@ module.exports = class Team {
   }
 
   /**
-   * Gets the specified team's record information
-   * @return {object} JSON of team record infomation
-   */
-  async getTeamRecord() {
-    try {
-      if (!this.record) {
-        const json = await this.getJson(this.teamID)
-        this.record = json.record
-      }
-      return this.record
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  /**
    * Gets the specified team's conference
-   * @return {number} ID of team's conference
+   * @return {object} {conferenceID, subConferenceID}
    */
   async getTeamConference() {
     try {
       if (!this.conferenceID) {
-        const json = await this.getJson(this.teamID)
-        if (json.groups) {
-          this.subConferenceID = json.groups.id
-          this.conferenceID = json.groups.parent.id
-        }
+        const json = await this.getJson()
+        this.conference = new Conference(json.groups.parent.id) || null
       }
-      return this.conferenceID
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  /**
-   * Gets the specified team's logo URL
-   * @return {string} Url of team logo
-   */
-  async getTeamLogoURL() {
-    try {
-      if (!this.teamLogoURL) {
-        const json = await this.getJson(this.teamID)
-        this.teamLogoURL = json.team.logos[0].href
-        return this.teamLogoURL
-      }
-      return this.teamLogoURL
+      return this.conference
     } catch (e) {
       console.log(e)
     }

@@ -40,3 +40,7 @@ venv
 *.idea
 .vscode
 yarn.lock
+
+# Additional #
+########
+.*.js
