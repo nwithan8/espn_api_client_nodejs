@@ -2,7 +2,7 @@ const { get } = require('unirest')
 const Team = require('./Team')
 
 /**
- * Class and methods for ESPN team data
+ * Class and methods for ESPN conference data
  */
 module.exports = class Conference {
   constructor(conferenceID, data) {
@@ -37,7 +37,7 @@ module.exports = class Conference {
       return this.teams
     } catch (e) {
       this.teams = null
-      console.log(e)
+      console.error(e)
     }
   }
 }

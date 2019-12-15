@@ -11,10 +11,10 @@ module.exports = class Player {
     this.lastName = null
     this.league = data.league
     this.sport = data.sport
+    this.baseUrl = data.baseUrl
     this.team = null
     this.position = null
     this.jerseyNumber = null
-    this.baseUrl = `https://site.web.api.espn.com/apis/common/v3/sports/${this.sport}/${this.league}/athletes`
   }
 
   /**
@@ -35,14 +35,17 @@ module.exports = class Player {
    */
   async updatePlayerInfo() {
     try {
-      const json = await this.getJson()
-      this.firstName = json.athlete.firstName || null
-      this.lastName = json.athlete.lastName || null
-      this.jerseyNumber = json.athlete.jersey || null
-      this.position = json.athlete.position.abbreviation || null
-      if (json.athlete.team.id) {
+      let json = await this.getJson()
+      json = json.athlete || json
+      this.firstName = json.firstName || null
+      this.lastName = json.lastName || null
+      this.jerseyNumber = json.jersey || null
+      if (json.position) {
+        this.position = json.position.abbreviation || null
+      }
+      if (json.team) { // won't happen on solo players
         this.team = new Team({
-          teamID: json.athlete.team.id,
+          teamID: json.team.id,
           teamNickname: null,
           league: this.league,
           sport: this.sport,

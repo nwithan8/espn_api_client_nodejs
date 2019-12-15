@@ -74,7 +74,7 @@ module.exports = class Game {
       await this.getGameProbability()
       await this.getGameOdds()
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -105,7 +105,7 @@ module.exports = class Game {
       }
       return this.score
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 

@@ -73,7 +73,7 @@ module.exports = class Team {
       await this.getTeamConference()
       await this.getTeamRoster()
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -99,7 +99,7 @@ module.exports = class Team {
       }
       return this.schedule
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -115,7 +115,7 @@ module.exports = class Team {
       }
       return this.conference
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -134,7 +134,8 @@ module.exports = class Team {
           for (const player of group.items) {
             const newPlayer = new Player(player.id, {
               league: this.league,
-              sport: this.sport
+              sport: this.sport,
+              baseUrl: `https://site.web.api.espn.com/apis/common/v3/sports/${this.sport}/${this.league}/athletes`
             })
             players.push(newPlayer)
           }
@@ -145,7 +146,7 @@ module.exports = class Team {
       }
       return this.roster
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 }

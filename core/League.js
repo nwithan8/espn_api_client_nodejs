@@ -6,77 +6,17 @@ const Player = require('./Player')
 const Conference = require('./Conference')
 
 /**
- * Class and methods for ESPN League data
+ * Class and methods for ESPN league 
  */
 module.exports = class League {
-  constructor(leagueName) {
+  constructor(leagueName, data) {
     this.league = leagueName
-    this.sport = this.getSport(leagueName)
+    this.sport = data.sport
+    this.baseUrl = data.baseUrl
     this.teams = null // [Team object, Team object ...]
     this.conferences = null // []
     this.rankings = null // {}
-    this.baseUrl = `http://site.api.espn.com/apis/site/v2/sports/${this.sport}/${this.league}`
     this.currentGames = null // [Game object, Game object, ...]
-  }
-
-  /**
-   * Convert league nicknames into API-compliant values
-   * Use mostly for college sports (i.e. NCAAM or NCB?)
-   * @param {string} league
-   */
-  async fixLeagueName(league) {
-    if (['college football', 'ncaaf', 'cfb'].includes(league.toLowerCase())) {
-      this.leagueName = 'college-football'
-    } else if (['ncaam', 'mcb', 'ncb', 'mens college basketball'].includes(league.toLowerCase())) {
-      this.leagueName = 'mens-college-basketball'
-    } else if (
-      ['ncaaw', 'wcb', 'ncw', 'womens college basketball'].includes(league.toLowerCase())
-    ) {
-      this.leagueName = 'womens-college-basketball'
-    } else {
-      this.leagueName = league.toLowerCase()
-    }
-  }
-
-  /**
-   * Sets the sport based on the specified league
-   * @param {string} league Leauge of the sport being requested
-   * @return {string} The sport
-   */
-  getSport(league) {
-    let sport
-
-    switch (league.toLowerCase()) {
-      case 'college-football':
-      case 'nfl':
-        sport = 'football'
-        break
-
-      case 'mens-college-basketball':
-      case 'womens-college-backetball':
-        sport = 'basketball'
-        break
-
-      case 'nba':
-      case 'wnba':
-      case 'college-basketball':
-        sport = 'basketball'
-        break
-
-      case 'mlb':
-        sport = 'baseball'
-        break
-
-      case 'nhl':
-        sport = 'hockey'
-        break
-
-      default:
-        // ASSUME SOCCER OTHERWISE
-        sport = 'soccer'
-    }
-
-    return sport
   }
 
   /**
@@ -109,7 +49,7 @@ module.exports = class League {
         return team
       }
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -122,7 +62,7 @@ module.exports = class League {
       const request = await get(`${this.baseUrl}/teams/${name}`)
       return request.body.team.id
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -140,7 +80,7 @@ module.exports = class League {
       })
       return conference
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -158,7 +98,7 @@ module.exports = class League {
       })
       return game
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -171,11 +111,12 @@ module.exports = class League {
     try {
       const player = new Player(ID, {
         league: this.league,
-        sport: this.sport
+        sport: this.sport,
+        baseUrl: `https://site.web.api.espn.com/apis/common/v3/sports/${this.sport}/${this.league}/athletes`
       })
       return player
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -194,7 +135,7 @@ module.exports = class League {
       }
       return this.teams
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -214,7 +155,7 @@ module.exports = class League {
       return this.rankings
       // ? do somehing else with rankings ??
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -227,7 +168,7 @@ module.exports = class League {
       const request = await get(`${this.baseUrl}/news`)
       return request.body
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 
@@ -250,7 +191,7 @@ module.exports = class League {
       }
       return this.currentGames
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 }
