@@ -7,8 +7,10 @@ const Conference = require('./Conference')
  * Class and methods for ESPN team data
  */
 module.exports = class Team {
-  constructor(data) {
-    this.teamID = data.teamID // ex. 2
+  constructor(teamID, data) {
+    console.log(teamID)
+    console.log(data)
+    this.teamID = teamID // ex. 2
     this.league = data.league
     this.sport = data.sport
     this.baseUrl = data.baseUrl
@@ -109,9 +111,15 @@ module.exports = class Team {
    */
   async getTeamConference() {
     try {
-      if (!this.conferenceID) {
+      if (!this.conference) {
         const json = await this.getJson()
-        this.conference = new Conference(json.groups.parent.id) || null
+        console.log(json)
+        this.conference =
+          new Conference(json.team.groups.parent.id, {
+            league: this.league,
+            sport: this.sport,
+            baseUrl: this.baseUrl
+          }) || null
       }
       return this.conference
     } catch (e) {

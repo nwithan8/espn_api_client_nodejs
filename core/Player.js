@@ -44,8 +44,7 @@ module.exports = class Player {
         this.position = json.position.abbreviation || null
       }
       if (json.team) { // won't happen on solo players
-        this.team = new Team({
-          teamID: json.team.id,
+        this.team = new Team(json.team.id, {
           teamNickname: null,
           league: this.league,
           sport: this.sport,
@@ -81,7 +80,11 @@ module.exports = class Player {
    * @return {object} JSON of full player stats
    */
   async getPlayerFullStats() {
-    const request = await get(`${this.baseUrl}/${this.playerID}/splits`)
-    return request.body
+    if (this.league) {
+      const request = await get(`${this.baseUrl}/${this.playerID}/splits`)
+      return request.body
+    }
+    const request = await get(`${this.baseUrl}/${this.playerID}/statisticslog`)
+    return request.body.entries
   }
 }

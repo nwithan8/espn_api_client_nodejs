@@ -6,7 +6,7 @@ const Player = require('./Player')
 const Conference = require('./Conference')
 
 /**
- * Class and methods for ESPN league 
+ * Class and methods for ESPN league
  */
 module.exports = class League {
   constructor(leagueName, data) {
@@ -30,16 +30,14 @@ module.exports = class League {
       if (!request.body.code) {
         let team
         if (typeof ID === 'number') {
-          team = new Team({
-            teamID: ID,
+          team = new Team(ID, {
             teamNickname: null,
             league: this.league,
             sport: this.sport,
             baseUrl: this.baseUrl
           })
         } else {
-          team = new Team({
-            teamID: await this.getTeamIDFromName(ID.toLowerCase()),
+          team = new Team(await this.getTeamIDFromName(ID.toLowerCase()), {
             teamNickname: ID,
             league: this.league,
             sport: this.sport,
@@ -128,9 +126,17 @@ module.exports = class League {
     try {
       if (!this.teams) {
         this.teams = []
+        console.log(this.teams)
         const response = await get(`${this.baseUrl}/teams?limit=1000`)
         for (const team of response.body.sports[0].leagues[0].teams) {
-          this.teams.push(await this.Team(team.team.id))
+          console.log(team)
+          this.teams.push(
+            await this.Team(team.team.id, {
+              league: this.league,
+              sport: this.sport,
+              baseUrl: this.baseUrl
+            })
+          )
         }
       }
       return this.teams

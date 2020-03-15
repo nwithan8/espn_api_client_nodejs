@@ -6,6 +6,7 @@ const Team = require('./Team')
  */
 module.exports = class Conference {
   constructor(conferenceID, data) {
+    console.log(new Team())
     this.conferenceID = conferenceID
     this.league = data.league
     this.sport = data.sport
@@ -24,13 +25,16 @@ module.exports = class Conference {
         this.teams = []
         const request = await get(`${this.baseUrl}/teams?groups=${this.conferenceID}&limit=1000`)
         for (const team of request.body.sports[0].leagues[0].teams) {
-          const newTeam = new Team({
-            teamID: team.team.id,
-            teamNickname: team.team.nickname.toLowerCase(),
+          console.log(team)
+          console.log(team.team.id)
+          console.log(team.team.nickname.toLowerCase())
+          const newTeam = new Team(team.team.id, {
             league: this.league,
             sport: this.sport,
-            baseUrl: this.baseUrl
+            baseUrl: this.baseUrl,
+            teamNickname: team.team.nickname.toLowerCase()
           })
+          console.log(newTeam)
           this.teams.push(newTeam)
         }
       }

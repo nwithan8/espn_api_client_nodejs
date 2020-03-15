@@ -10,14 +10,13 @@ module.exports = class Game {
     this.league = data.league
     this.sport = data.sport
     this.baseUrl = data.baseUrl
-    this.awayTeam = null // Team object
-    this.homeTeam = null // Team object
     this.score = null // {awayScore, homeScore}
     this.winProbability = null // {percentage, winningTeam}
     this.spread = null
     this.overUnder = null
     this.venue = null
     this.attendance = null
+    this.broadcast = null
     /* ;(async () => {
       await this.getTeams(gameID)
     })() */
@@ -46,20 +45,18 @@ module.exports = class Game {
     try {
       const json = await this.getJson()
       const teamObjs = json.boxscore.teams
-      /* this.awayTeam = new Team({
-        teamID: teamObjs[0].team.id,
-        teamNickname: null,
+      this.awayTeam = new Team(teamObjs[0].team.id, {
         league: this.league,
         sport: this.sport,
-        baseUrl: this.baseUrl
+        baseUrl: this.baseUrl,
+        teamNickname: null
       })
-      this.homeTeam = new Team({
-        teamID: teamObjs[1].team.id,
-        teamNickname: null,
+      this.homeTeam = new Team(teamObjs[1].team.id, {
         league: this.league,
         sport: this.sport,
-        baseUrl: this.baseUrl
-      }) */
+        baseUrl: this.baseUrl,
+        teamNickname: null
+      })
       this.venue =
         {
           name: json.gameInfo.venue.fullName,
